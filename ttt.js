@@ -70,6 +70,7 @@ for (t=0; t<9; t++)
 	if (checkWin("X") == true) console.log("X Wins!");
 	else if (checkWin("O") == true) console.log("O Wins!");
 	if (checkWin("X") == true || checkWin("O") == true) break;
+	if (t == 8) console.log("Its a tie!"); 
 }
 	
 	
