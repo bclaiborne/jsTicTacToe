@@ -1,12 +1,11 @@
-
 //initialize board with space as the values.
 var b = [[" "," "," "],[" "," "," "],[" "," "," "]];
 var readline = require('readline');
+var turns=0;
 
 function drawBoard() {
 var text;
-for (r=2; r >= 0; r--) 
-	{
+for (r=2; r >= 0; r--) {
 		text = r + "  " + b[r][0] + "|" + b[r][1] + "|" + b[r][2];
 		console.log(text);
 		if (r!=0) console.log("   -----");
@@ -14,15 +13,13 @@ for (r=2; r >= 0; r--)
 	}
 }
 
-function checkWin(player) {
+function checkWin(player){
 	//Horizontal Win
-	for (r=0; r <=2; r++)
-		{
+	for (r=0; r <=2; r++){
 		if(b[r][0] == player && (b[r][0] == b[r][1] && b[r][1] == b[r][2])) return true;
 		}
 	//Vertical Win
-	for (c=0; c <=2; c++)
-		{
+	for (c=0; c <=2; c++){
 		if(b[0][c] == player && (b[0][c] == b[1][c] && b[1][c] == b[2][c])) return true;
 		}
 	//Diagonal Wins
@@ -30,20 +27,16 @@ function checkWin(player) {
 	else if (b[2][0] == player && (b[2][0] == b[1][1] && b[1][1] == b[0][2])) return true;	
 	else return false;
 }
-function moveCheck(x,y) 
-	{
+function moveCheck(x,y){
 	if (b[x][y] == " ") return true;
 	else return false;
 	}
-function aiMove(symbol) {
+function aiMove(symbol){
 	// takes the first open spot it finds
 	var done = 0;
-	for (r=0; r<=2; r++)
-		{
-			for (c=0; c<=2; c++)
-				{	
-				if (moveCheck(r,c))
-					{
+	for (r=0; r<=2; r++){
+			for (c=0; c<=2; c++){	
+				if (moveCheck(r,c)){
 						b[r][c] = symbol;
 						done=1;
 						break;
@@ -52,27 +45,31 @@ function aiMove(symbol) {
 			if (done == 1) break;
 		}
 }
+console.log("Make an x,y coordinate choice!");
+drawBoard();
 
-for (t=0; t<9; t++)
-{
-	/*Take user input.
-	stdio.question('Make a Move!', function (err, input) {
-	input.split;
-	
-    console.log('Your name is "%s". You are a "%s" "%s" years old.', name, sex, age);
-    });
-	*/
-	var current = "X";
-	if (t%2 == 0) current = "X";
-	if (t%2 == 1) current = "O";
-	aiMove(current);
-	drawBoard();
-	if (checkWin("X") == true) console.log("X Wins!");
-	else if (checkWin("O") == true) console.log("O Wins!");
-	if (checkWin("X") == true || checkWin("O") == true) break;
-	if (t == 8) console.log("Its a tie!"); 
-}
-	
+process.stdin.on('readable', function() {
+	var chunk = process.stdin.read();
+	if (chunk !== null) {
+		input = chunk.toString();
+		if (input.match(/[012]{2}/)){
+			input.split("");
+			if(moveCheck(input[1],input[0])){
+				b[input[1]][input[0]] = "X";
+				if (checkWin("X") == true) process.stdout.write("X Wins!\n");
+				else if (checkWin("O") == true) process.stdout.write("O Wins!\n");
+				turns++;
+				if (turns == 5) process.stdout.write("Its a tie!\n"); 
+				if (turns == 5 || checkWin("X") == true || checkWin("O") == true) process.exit();
+				aiMove("O");
+				drawBoard();
+			} else console.log("Invalid Move. Try Again")
+		} else console.log("Invalid Move. Try Again")
+	}
+});
+
+
+
 	
 	
 	
