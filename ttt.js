@@ -1,73 +1,79 @@
-//initialize board with space as the values.
-var b = [[" "," "," "],[" "," "," "],[" "," "," "]];
-var readline = require('readline');
 var turns=0;
-
-function drawBoard() {
-var text;
-for (r=2; r >= 0; r--) {
-		text = r + "  " + b[r][0] + "|" + b[r][1] + "|" + b[r][2];
-		console.log(text);
-		if (r!=0) console.log("   -----");
-		if (r==0) console.log("   0 1 2");
-	}
-}
+var debug=true;
 
 function checkWin(player){
 	//Horizontal Win
 	for (r=0; r <=2; r++){
-		if(b[r][0] == player && (b[r][0] == b[r][1] && b[r][1] == b[r][2])) return true;
-		}
+		if(	$("#" + r + "0").hasClass(player) && 
+			$("#" + r + "1").hasClass(player) && 
+			$("#" + r + "2").hasClass(player)
+			) return true;
+	}
 	//Vertical Win
 	for (c=0; c <=2; c++){
-		if(b[0][c] == player && (b[0][c] == b[1][c] && b[1][c] == b[2][c])) return true;
-		}
+		if(	$("#0" + c).hasClass(player) && 
+			$("#1" + c).hasClass(player) && 
+			$("#2" + c).hasClass(player)
+			) return true;
+	}
 	//Diagonal Wins
-	if (b[0][0] == player && (b[0][0] == b[1][1] && b[1][1] == b[2][2])) return true;
-	else if (b[2][0] == player && (b[2][0] == b[1][1] && b[1][1] == b[0][2])) return true;	
+	if ($("#00").hasClass(player) &&
+		$("#11").hasClass(player) &&
+		$("#22").hasClass(player)
+		) return true;
+	else if ($("#20").hasClass(player) &&
+		$("#11").hasClass(player) &&
+		$("#02").hasClass(player)
+		) return true;	
 	else return false;
 }
-function moveCheck(x,y){
-	if (b[x][y] == " ") return true;
+function moveCheck(element){
+	// Returns true if the cell is empty and it is actually a cell class.
+	if (debug) console.log("moveCheck => Checking cell " + element.id + ": Class is: " + element.className + " innerHTML is: " + element.innerHTML);
+
+	if (element.innerHTML == "" && element.className == "cell") return true;
 	else return false;
 	}
-function aiMove(symbol){
+function aiMove(){
 	// takes the first open spot it finds
-	var done = 0;
-	for (r=0; r<=2; r++){
-			for (c=0; c<=2; c++){	
-				if (moveCheck(r,c)){
-						b[r][c] = symbol;
-						done=1;
-						break;
-					}
-				}
-			if (done == 1) break;
+	$("div").each(function(index, element){
+		if (debug) console.log("Current Cell => Class is: " + element.className + " Spot Taken? " + $(this).hasClass('X'));
+		
+		if ($(this).hasClass('X') == false && moveCheck(element) == true) {
+			if (debug) console.log("I Picked: Cell " + element.id);
+			$(this).html("<img src='blueo.png'/>");
+			$(this).addClass("O");
+			return false;
 		}
+	});
 }
-console.log("Make an x,y coordinate choice!");
-drawBoard();
 
-process.stdin.on('readable', function() {
-	var chunk = process.stdin.read();
-	if (chunk !== null) {
-		input = chunk.toString();
-		if (input.match(/[012]{2}/)){
-			input.split("");
-			if(moveCheck(input[1],input[0])){
-				b[input[1]][input[0]] = "X";
-				if (checkWin("X") == true) process.stdout.write("X Wins!\n");
-				else if (checkWin("O") == true) process.stdout.write("O Wins!\n");
-				turns++;
-				if (turns == 5) process.stdout.write("Its a tie!\n"); 
-				if (turns == 5 || checkWin("X") == true || checkWin("O") == true) process.exit();
-				aiMove("O");
-				drawBoard();
-			} else console.log("Invalid Move. Try Again")
-		} else console.log("Invalid Move. Try Again")
-	}
+
+$(document).ready(function(){
+	$(".cell").click(function(event) {
+		if (debug) console.log("You Picked: Cell " + event.target.id);
+
+		if (moveCheck(event.target)) {
+			$(event.target).html("<img class='X' src='redx.png'/>");
+			$(event.target).addClass("X");
+			if (checkWin("X") == true) {
+				alert("X Wins!");
+				return false;
+			} 
+			aiMove();
+			if (checkWin("O") == true) {
+				alert("O Wins!");
+				return false;
+			} 
+			turns++;
+			if (turns == 5) {
+				alert("Its a tie!"); 
+				return false;
+			} 
+
+		} else if (moveCheck(event.target) == false) alert("Invalid Move");
+	});
 });
-
 
 
 	
