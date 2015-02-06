@@ -76,7 +76,6 @@ function removeGame(url){
 	json_string = "{yourGame: 'removed'}";
 	return json_string;
 }
-
 function playerMove(url, post_data){
 	// playerMove(String, String)
 	// perform a move on the board of the existing game.
@@ -96,8 +95,6 @@ function playerMove(url, post_data){
 		}
 	}
 }
-var url = "/new";
-createGame(url);
 
 function router(request, post_data){
 	// Use to decide if we are creating, ending or continuing a game.
@@ -111,7 +108,7 @@ function router(request, post_data){
 		case 'PUT':
 			// Create a new game
 			json_string = createGame(url);
-			response.writeHead(201, {'Content-Type': 'application/json'});
+			console.log(json_string);
 			return json_string;
 		case 'POST':
 			//Parse and save the players move or request.
@@ -124,7 +121,7 @@ function router(request, post_data){
 			return json_string;
 		default:
 			console.log("Nothing Happened!");
-			break;
+			return "Bad Request";
 	};
 }
 
