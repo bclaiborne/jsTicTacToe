@@ -6,6 +6,7 @@ Game = function(player1, player2, url){
 	this.boardname = url;
 	this.brd = [[" "," "," "],[" "," "," "],[" "," "," "]];
 	this.turns = 0;
+	this.won = " ";
 }	
 Game.prototype.checkWin = function(p_symbol){
 	/**
@@ -38,20 +39,18 @@ Game.prototype.spaceCheck = function(x,y){
 }
 Game.prototype.boardUpdate = function(x,y, symbol){
 	/**
-	 *	Sets the space passed as occupied by the players symbol
+	 *	Sets the space passed as occupied by the players symbol and updates the turn count.
 	 *	{number} x The x coordinate on the board.
 	 *	{number} y The y coordinate on the board.
 	 *	{boolean} Returns True if the space is set. False if a mark exists.
 	*/
-	if (spaceCheck(x,y)) {
+	if (this.spaceCheck(x,y)) {
 		this.brd[x][y] = symbol;
+		this.turns++;
 		return true;
 	} else {
 		return false;
 	}
-}
-Game.prototype.boardReturn = function(){
-	return this.brd;
 }
 
 Ai = function(symbol){
@@ -68,6 +67,7 @@ Ai.prototype.aiMove = function(game){
 		for (c=0; c<=2; c++){	
 			if (game.spaceCheck(r,c)){
 				game.boardUpdate(r,c, this.symbol);
+				return;
 			}
 		}
 	}
@@ -82,28 +82,25 @@ Player.prototype.Update = function(url, parse){
 	 *	{string} url The name of the game being played.
 	 *	{array} parse The x, y coordinate pair for the move.
 	*/ 
-	var game_move, current_g, square, index;
-	//Parse the posted data.
-	game_move = parse;
+	var game_move = current_g = 0;
+	current_g = game_manager.loadGame(url);
+	
+	//Parse the posted data from a buffer to an array of x,y coordinates.
+	// e.g. 'X=00' => [0,0]
+	game_move = parse.toString('utf8').split("=");
 	target = game_move[1].split("");
-	console.log(typeof target);
-	// Grab the current game
-	for (index = 0; index < games.length; index++){
-		if (games[index].boardName == url) {
-			current_g = games[index];
-		}
-	}
-	square = current_g.playLocations[target[0]][target[1]];
-	if (moveCheck(square) && current_g.won == " "){
-		// Set the players move
-		current_g.playLocations[target[0]][target[1]] = game_move[0];
-		if (checkWin("X", current_g)) {
+
+	if (current_g.spaceCheck(target[0],target[1]) && current_g.won == " "){
+		// Tells the Game Obj to set the players move then check for win.
+		current_g.boardUpdate(target[0],target[1], game_move[0]);
+		if (current_g.checkWin("X")) {
 			current_g.won = "X";
 			return current_g;
 		}
-		// Set the ai move
-		aiMove(current_g);
-		if (checkWin("O", current_g)) current_g.won = "O";
+		// Tells the Game Obj to set the ai move then check for win.
+		enemy = new Ai("O");
+		enemy.aiMove(current_g);
+		if (current_g.checkWin("O")) current_g.won = "O";
 	}
 	return current_g;
 }
@@ -115,34 +112,32 @@ MetaBetaPetaverse.prototype.createGame = function(url){
 	/* createGame(String)
 	// Create a new game object with a name and a space array. Saves it in the 'games' array.
 	// Returns a JSON object with an element yourGame and value is the url passed in. */
-	var exists = false;
+	exists = false;
 	that = this;
-//	console.log("#####################");
 	// Check game existence.
 	for (index = 0; index < that.games.length; index++){
 		if (that.games[index].boardname == url) { 
 			exists = true;
 		}
 	}
+	// If it wasn't found, create it, else load it.
 	if (exists != true) {
 	console.log("New Game Created at: " + url);
 		var game = new Game("X", "O", url);
 		that.games.push(game);
 		that.games.sort();
-		console.log(that.games);
-		// Return the new Game object
 	} else {
+		console.log("Game Loaded: " + url);
 		game = that.loadGame(url);
 	}
-	console.log("Game: ?????????????????" + game.boardname);
+	// Return the new or loaded Game object
 	return game;
 }
 MetaBetaPetaverse.prototype.loadGame = function(url){
 	// Search for the game and return it if found.
 	that = this;
-//	console.log("Games Length: " + that.games.length);
 	for (index = 0; index < that.games.length; index++){
-		if (that.games[index].boardName == url) { 
+		if (that.games[index].boardname == url) { 
 			game = that.games[index];
 			console.log(url + " game loaded.");
 			console.log(game);
@@ -179,7 +174,7 @@ instance.addRoute({method:'PUT', url_path:'/create/', handler: function(url, par
 //Game Load Route.
 instance.addRoute({method:'POST', url_path:'/load/', handler: function(url, params){return game_manager.loadGame(url);}});
 //Game Update Route.
-instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, params){return client.Update(url, params);}});
+instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, data){return client.Update(url, data);}});
 //Game Delete Route.
 instance.addRoute({method:'DELETE', url_path:'/delete/', handler: function(url, params){return game_manager.removeGame(url);}});
 //Game Default Route.

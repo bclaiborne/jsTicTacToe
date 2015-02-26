@@ -5,7 +5,7 @@ Server = function(){
 	this.routes = [];
 }	
 Server.prototype.start = function(){
-	that = this;
+	srv = this;
 	http.createServer(function (request, response) {
 		if (request.method === 'OPTIONS') {
 			console.log('!OPTIONS');
@@ -33,7 +33,7 @@ Server.prototype.start = function(){
 					request.connection.destroy();
 			});
 			request.on('end', function () {
-				var response_data = that.selectRoute(request, body);
+				var response_data = srv.selectRoute(request, body);
 				console.log("Response Data: " + response_data);
 				response.end(JSON.stringify(response_data, null, 2) + "\n");
 			});
@@ -43,35 +43,25 @@ Server.prototype.start = function(){
 Server.prototype.addRoute = function(route_obj) {
 	//Route is a string containing a method and url pair with a function to trigger.
 	// In the form {method: value, url: value, handler: function}
-//	console.log("Server.addRoute triggered");
 	this.routes.push(route_obj);
-//	console.log(this.routes);
 }
-Server.prototype.matchPrefix = function(request, target){
-	//Returns true if the request has the same prefix as target
-	check = request.match(target);
-//	console.log("Server.matchPrefix triggered");
-//	console.log("request url: " + request + " , match string: " + target);
-//	console.log(check);
-	if (request.match(target) ) {
-		console.log("request url: " + request + " , matched string: " + target);
+Server.prototype.matchPrefix = function(request, route){
+	//Returns true if the request prefix matches the route prefix.
+	check = request.match(route);
+	if (request.match(route) ) {
 		return true;
 	} else return false;
 }
 Server.prototype.selectRoute = function(request, passed_data){
 	// Iterates the routes to find a destination for the request.
 	that = this;
-	console.log(that.routes);
 	for (i=0; i <= that.routes.length; i++) {
 		key = that.routes[i];
 			//Compares request information to the routes submitted and triggers the handler.
-//			console.log("key method: " + key.method + ", request method: " + request.method);
 
 		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
 			game_url = request.url.split(key.url_path);
 			game_response = key.handler(game_url[1], passed_data);
-//			console.log("Game Response:" + key.handler(game_url[1], passed_data));
-			console.log(game_response);
 			return game_response;
 		}
 	}
