@@ -116,37 +116,41 @@ MetaBetaPetaverse.prototype.createGame = function(url){
 	// Create a new game object with a name and a space array. Saves it in the 'games' array.
 	// Returns a JSON object with an element yourGame and value is the url passed in. */
 	var exists = false;
-	console.log("#####################");
+	that = this;
+//	console.log("#####################");
 	// Check game existence.
-	for (index = 0; index < this.games.length; index++){
-		if (this.games[index].boardname == url) { 
+	for (index = 0; index < that.games.length; index++){
+		if (that.games[index].boardname == url) { 
 			exists = true;
 		}
 	}
 	if (exists != true) {
 	console.log("New Game Created at: " + url);
 		var game = new Game("X", "O", url);
-		this.games.push(game);
-		this.games.sort();
-		console.log(this.games);
+		that.games.push(game);
+		that.games.sort();
+		console.log(that.games);
 		// Return the new Game object
 	} else {
-		game = this.loadGame(url);
+		game = that.loadGame(url);
 	}
+	console.log("Game: ?????????????????" + game.boardname);
 	return game;
 }
 MetaBetaPetaverse.prototype.loadGame = function(url){
 	// Search for the game and return it if found.
-	for (index = 0; index < this.games.length; index++){
-		if (this.games[index].boardName == url) { 
-			game = this.games[index];
+	that = this;
+//	console.log("Games Length: " + that.games.length);
+	for (index = 0; index < that.games.length; index++){
+		if (that.games[index].boardName == url) { 
+			game = that.games[index];
 			console.log(url + " game loaded.");
 			console.log(game);
 			return game;
 		}
 	}
 	// If the game wasn't found, create one and return it.
-	return this.createGame(url);
+	return that.createGame(url);
 }
 MetaBetaPetaverse.prototype.removeGame = function(url){
 	/* removeGame(String)
@@ -171,13 +175,13 @@ var skynet = new Ai("O");
 
 var game_manager = new MetaBetaPetaverse();
 //Game Create Route.
-instance.addRoute({method:'GET', url_path:'/create/', handler: function(url, params){game_manager.createGame(url);}});
+instance.addRoute({method:'PUT', url_path:'/create/', handler: function(url, params){return game_manager.createGame(url);}});
 //Game Load Route.
-instance.addRoute({method:'POST', url_path:'/load/', handler: function(url, params){game_manager.loadGame(url);}});
+instance.addRoute({method:'POST', url_path:'/load/', handler: function(url, params){return game_manager.loadGame(url);}});
 //Game Update Route.
-instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, params){client.Update(url, params);}});
+instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, params){return client.Update(url, params);}});
 //Game Delete Route.
-instance.addRoute({method:'DELETE', url_path:'/delete/', handler: function(url, params){game_manager.removeGame(url);}});
+instance.addRoute({method:'DELETE', url_path:'/delete/', handler: function(url, params){return game_manager.removeGame(url);}});
 //Game Default Route.
 //instance.addRoute({method:'GET', url_path:'', handler: function(url){console.log("Default URI");}});
 

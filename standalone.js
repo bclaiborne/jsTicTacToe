@@ -61,17 +61,19 @@ Server.prototype.matchPrefix = function(request, target){
 Server.prototype.selectRoute = function(request, passed_data){
 	// Iterates the routes to find a destination for the request.
 	that = this;
-	console.log("Server.selectRoute triggered");
-	this.routes.forEach( function(key){
-		//Compares request information to the routes submitted and triggers the handler.
-//		console.log("key method: " + key.method + ", request method: " + request.method);
+	console.log(that.routes);
+	for (i=0; i <= that.routes.length; i++) {
+		key = that.routes[i];
+			//Compares request information to the routes submitted and triggers the handler.
+//			console.log("key method: " + key.method + ", request method: " + request.method);
 
 		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
 			game_url = request.url.split(key.url_path);
 			game_response = key.handler(game_url[1], passed_data);
+//			console.log("Game Response:" + key.handler(game_url[1], passed_data));
 			console.log(game_response);
-
+			return game_response;
 		}
-	});
+	}
 }
 
