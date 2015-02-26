@@ -2,23 +2,56 @@ var qs = require('querystring');
 var http = require('http');
 require('./standalone.js');
 
+/* 	Questions is an array of question objects in the form:
+ * 	{
+ *		q: string,  	// The Question
+ *		choice: array, 	// Array with as many elements as the client views display.
+ *		answer: integer // A number not to exceed the length of the choice array.
+ *						// 0 implies all answers count as correct.
+ *  }
+ *
+**/ 
 var questions = [
 	{	q: "Why am I playing this?", 
-		choice: ['because', 'no reason', 'masacism', 'peer-pressure'],
-		answer: 'any'},
+		choice: ['Because', 'No reason', 'Masacism', 'Peer-pressure'],
+		answer: 0},
 	{	q: "Why is a raven like a writing desk?",
-		choice: [	"because there is a 'b' in both and an 'n' in neither", 
+		choice: [	"Because there is a 'b' in both and an 'n' in neither!", 
 					"Because neither is approached without caws.", 
 					"A desk is a rest for pens while a raven is a pest for wrens.",
 					"Because it can produce a few notes, tho they are very flat; and it is nevar put with the wrong end in front!"],
-		answer: 'd'}
+		answer: 4},
+	{	q: "Which of these is FALSE?",
+		choice: [	"Both 3 and 4 are correct.",
+					"1 is correct.",
+					"None of the above.",
+					"All of the above."],
+		answer: 4},
+	{	q: "That that is is that that is not is not is that it?",
+		choice: ["It is.", "It is not", "Maybe.", "Byron Gets an A."],
+		answer: 1}
 ]
 Game = function(url){
 	this.name = url;
-	this.count = 0;
-	this.q1 = questions[0];
-	this.q2 = questions[1];
-	this.correct = 0;	
+	this.q_num = 0;
+	this.current_q = questions[0];
+	this.correct = 0;
+	this.done = false;
+}
+Game.prototype.updateState = function(data){
+	that = this;
+	data_pair = data.split("=");
+	console.log(data_pair);
+	//check if submission is correct answer to current question
+	if (data_pair[1] == that.current_q.answer || that.current_q.answer == 0) {
+		that.correct++;
+	}
+	//Update the question counter.
+	that.q_num++;
+	that.current_q = questions[that.q_num];
+	if (that.q_num == questions.length){
+		that.done = true;
+	}
 }
 Manager = function(url){
 	this.games = [];
@@ -26,7 +59,7 @@ Manager = function(url){
 Manager.prototype.check4Game = function(url){
 	mgr = this;
 	for (index = 0; index < mgr.games.length; index++){
-		if (mgr.games[index].boardname == url) {
+		if (mgr.games[index].name == url) {
 		return true;
 		}
 	}
@@ -49,22 +82,26 @@ Manager.prototype.createGame = function(url){
 		mgr.games.sort();
 	}
 	// Return the new or loaded Game object
+	//console.log(game);
 	return game;
 }
 Manager.prototype.loadGame = function(url){
 	// Search for the game and return it if found.
 	mgr = this;
 	if (mgr.check4Game(url)) {
-		game = mgr.games[index];
 		console.log(url + " game loaded.");
-		console.log(game);
-		return game;
+		return mgr.games[index];
 	}
 	// If the game wasn't found, create one and return it.
 	return mgr.createGame(url);
 }
-Manager.prototype.updateGame = function(url){
+Manager.prototype.updateGame = function(url, data){
+	// Converts from a buffer to a String. Gotcha!
+	data = data.toString('UTF-8');
+	game_instance = this.loadGame(url);
+	game_instance.updateState(data);
 	
+	return game_instance;
 	// Make the game object do stuff.
 }
 
