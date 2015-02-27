@@ -32,11 +32,9 @@ function aiMove(game){
 		for (c=0; c<=2; c++){
 			if (board[r][c] == " "){
 				board[r][c] = "O";
-				done=1;
-				break;
+				return;
 			}
 		}
-		if (done == 1) break;
 	}
 }
 function createGame(url){
@@ -96,17 +94,19 @@ function playerMove(url, parse){
 	// playerMove(String, String)
 	// perform a move on the board of the existing game.
 	var game_move, current_g, square, index;
+
 	//Parse the posted data.
 	game_move = parse;
 	target = game_move[1].split("");
-	console.log(typeof target);
+
 	// Grab the current game
 	for (index = 0; index < games.length; index++){
 		if (games[index].boardName == url) {
 			current_g = games[index];
+			square = games[index].playLocations[target[0]][target[1]];
 		}
 	}
-	square = current_g.playLocations[target[0]][target[1]];
+
 	if (moveCheck(square) && current_g.won == " "){
 		// Set the players move
 		current_g.playLocations[target[0]][target[1]] = game_move[0];
@@ -122,39 +122,38 @@ function playerMove(url, parse){
 }
 
 function router(request, passed_data){
-	// Use to decide if we are creating, ending or continuing a game.
-	// Use to decide which game to continue playing.
-	var url = request.url;
+	url = request.url;
 
 	// Use to decide where the player moves.
 	var json_string = "";
-//	console.log(request.method);
-//	console.log(request.url);
 	
 	switch(request.method) {
 		case 'PUT':
 			// Create a new game
-			json_string = createGame(url);
 			console.log("PUT");
-			return json_string;
+			return createGame(url);
 		case 'POST':
 			//Parse and save the players move or request.
-			//Post data needs to be formatted as => {player=row col} eg. {X=11} - OR - undefined to return state.
+			//Post data format: X=11
+			//		If data is undefined, return game state.
 			post_data = passed_data.toString('utf8').split("=");
-
-			if (post_data[0]!="X"){ json_string = loadGame(url);
+console.log(post_data);
+			if (post_data[0] != "X"){ 
+				json_string = loadGame(url);
 			} else {
 				json_string = playerMove(url, post_data);
 			}
-			
 			return json_string;
+		case 'GET':
+			// Returns game state
+			console.log("GET");
+			return loadGame(url);
 		case 'DELETE':
 			// Delete a game
-			json_string = removeGame(url);
-			return json_string;
+			console.log("DELETE");
+			return removeGame(url);
 		default:
 			console.log("Nothing Happened!");
-			return "Bad Request";
 	};
 }
 
