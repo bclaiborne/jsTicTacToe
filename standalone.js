@@ -3,6 +3,7 @@ var http = require('http');
 
 Server = function(){
 	this.routes = [];
+	this.views = [];
 }	
 Server.prototype.start = function(){
 	srv = this;
@@ -34,7 +35,7 @@ Server.prototype.start = function(){
 			});
 			request.on('end', function () {
 				var response_data = srv.selectRoute(request, body);
-				console.log("Response Data: " + response_data);
+				response_data = srv.selectView(response_data, request);
 				response.end(JSON.stringify(response_data, null, 2) + "\n");
 			});
 		}
@@ -66,4 +67,21 @@ Server.prototype.selectRoute = function(request, passed_data){
 		}
 	}
 }
+Server.prototype.addView = function(view_obj){
+	//View is a key value pair 
+	this.views.push(view_obj);
+}
+Server.prototype.selectView = function(request, passed_data){
+	// Iterates the views to find a format for the request.
+	that = this;
+	for (i=0; i <= that.views.length; i++) {
+		key = that.views[i];
+			//Compares request information to the routes submitted and triggers the handler.
 
+		if (key.accepts == request.accept){
+			game_response = key.handler(game_response);
+			return game_response;
+		}
+	}
+	
+}

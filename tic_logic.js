@@ -2,6 +2,40 @@ var qs = require('querystring');
 var http = require('http');
 require('./standalone.js');
 
+function processGame(Obj){
+	// Takes the JSON response and parses it for piece locations.
+	// Updates the board.
+	var state = [];
+	
+	if(Obj){ 
+		state = Obj.brd;
+	} else { 
+		console.log("No object returned");
+	}
+	// Parses the game array and updates classes of corresponding divs.
+	for (r=0; r<=2; r++){
+		for (c=0; c<=2; c++){
+			if (state[r][c] == "O"){
+				$("#"+r+c).addClass("O");
+				$("#"+r+c).html("<img src='./blueo.png' />");
+			} else if (state[r][c] == "X") {
+				$("#"+r+c).addClass("X");
+				$("#"+r+c).html("<img src='./redx.png' />");
+			} else {
+				$("#"+r+c).removeClass("X");
+				$("#"+r+c).removeClass("O");
+				$("#"+r+c).html(" ");
+			}
+		}
+	}
+	// Checks the game objects won attribute and turn count.
+	if (Obj.won == "X") {
+		alert("X wins!"); 
+	} else if (Obj.won == "O") {
+		alert("O wins!");
+	} else if (Obj.turns == 9) alert("Tie Game.");
+}
+
 Game = function(player1, player2, url){
 	this.boardname = url;
 	this.brd = [[" "," "," "],[" "," "," "],[" "," "," "]];
@@ -162,6 +196,42 @@ MetaBetaPetaverse.prototype.removeGame = function(url){
 	json_resp = "{yourGame: 'removed'}";
 	return json_resp;
 }
+MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
+/*{
+	boardname = url,
+	brd = [[" "," "," "],[" "," "," "],[" "," "," "]],
+	turns = 0;
+	won = " "
+}*/
+function insertImage(board_space){
+	img = "";
+	if (board_space=="X") {
+		img = "<img src='./redx.png' />";
+	} else if (board_space=="O") {
+		img = "<img src='./blueo.png' />";
+	}
+	return img;	
+}
+
+g=json_obj.brd;
+
+var html_string = "";
+html_string += "<table><tr>";
+html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
+html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
+html_string += "<td><div class='cell' id='22'>"+insertImage(g[2][2])+"</div></td>";
+html_string += "</tr><tr>";
+html_string += "<td class='hori'><div class='cell' id='10'>"+insertImage(g[1][0])+"</div></td>";
+html_string += "<td class='vert hori'><div class='cell' id='11'>"+insertImage(g[1][1])+"</div></td>";
+html_string += "<td class='hori'><div class='cell' id='12'>"+insertImage(g[1][2])+"</div></td>";
+html_string += "</tr><tr>";
+html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
+html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
+html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
+html_string += "</tr></table>";
+
+return html_string;	
+}
 
 
 var instance = new Server();
@@ -170,14 +240,38 @@ var skynet = new Ai("O");
 
 var game_manager = new MetaBetaPetaverse();
 //Game Create Route.
-instance.addRoute({method:'PUT', url_path:'/create/', handler: function(url, params){return game_manager.createGame(url);}});
+instance.addRoute({
+	method:'PUT', 
+	url_path:'/create/', 
+	handler: function(url, params){return game_manager.createGame(url);}
+});
 //Game Load Route.
-instance.addRoute({method:'POST', url_path:'/load/', handler: function(url, params){return game_manager.loadGame(url);}});
+instance.addRoute({
+	method:'POST', 
+	url_path:'/load/', 
+	handler: function(url, params){return game_manager.loadGame(url);}
+});
 //Game Update Route.
-instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, data){return client.Update(url, data);}});
+instance.addRoute({
+	method:'POST', 
+	url_path:'/update/', 
+	handler: function(url, data){return client.Update(url, data);}
+});
 //Game Delete Route.
-instance.addRoute({method:'DELETE', url_path:'/delete/', handler: function(url, params){return game_manager.removeGame(url);}});
-//Game Default Route.
-//instance.addRoute({method:'GET', url_path:'', handler: function(url){console.log("Default URI");}});
+instance.addRoute({
+	method:'DELETE', 
+	url_path:'/delete/', 
+	handler: function(url, params){return game_manager.removeGame(url);}
+});
+//JSON Game View.
+instance.addView({
+	accept: "application/json; charset=utf-8",
+	handler: function(response_object){return response_object;}
+});
+//HTML Game View.
+instance.addView({
+	accept: "text/html; charset=utf-8",
+	handler: function(response_object){return game_manager.buildHTML(response_object);}
+});
 
 instance.start();

@@ -41,6 +41,10 @@ $(document).ready(function(){
 		var url = $("#textbox").val();
 		$.ajax({
 			url: 'http://127.0.0.1:1337/create/' + url,
+			headers: {
+			     Accept : "application/json; charset=utf-8",         
+				"Content-Type": "application/json; charset=utf-8"   
+			},
 			type: 'PUT',
 			success: function(response){
 				console.log("New Game Object: " + response.boardname);
@@ -53,6 +57,10 @@ $(document).ready(function(){
 		var url = $("#textbox").val();
 		$.ajax({
 			url: 'http://127.0.0.1:1337/load/' + url,
+			headers: {
+			     Accept : "application/json; charset=utf-8",         
+				"Content-Type": "application/json; charset=utf-8"   
+			},
 			type: 'POST',
 			success: function(response){
 				console.log("Load Game Object: " + response.boardname);
@@ -69,6 +77,10 @@ $(document).ready(function(){
 		if (event.target.id != ""){
 			$.ajax({
 				url: 'http://127.0.0.1:1337/update/' + url,
+			headers: {
+			     Accept : "application/json; charset=utf-8",         
+				"Content-Type": "application/json; charset=utf-8"   
+			},
 				type: 'POST',
 				data: 'X=' + event.target.id,
 				success: function(response){
