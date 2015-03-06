@@ -197,40 +197,40 @@ MetaBetaPetaverse.prototype.removeGame = function(url){
 	return json_resp;
 }
 MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
-	/*{
-		boardname = url,
-		brd = [[" "," "," "],[" "," "," "],[" "," "," "]],
-		turns = 0;
-		won = " "
-	}*/
-	function insertImage(board_space){
-		img = "";
-		if (board_space=="X") {
-			img = "<img src='./redx.png' />";
-		} else if (board_space=="O") {
-			img = "<img src='./blueo.png' />";
-		}
-		return img;	
+/*{
+	boardname = url,
+	brd = [[" "," "," "],[" "," "," "],[" "," "," "]],
+	turns = 0;
+	won = " "
+}*/
+function insertImage(board_space){
+	img = "";
+	if (board_space=="X") {
+		img = "<img src='./redx.png' />";
+	} else if (board_space=="O") {
+		img = "<img src='./blueo.png' />";
 	}
+	return img;	
+}
 
-	g=json_obj.brd;
+g=json_obj.brd;
 
-	var html_string = "";
-	html_string += "<table><tr>";
-	html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
-	html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
-	html_string += "<td><div class='cell' id='22'>"+insertImage(g[2][2])+"</div></td>";
-	html_string += "</tr><tr>";
-	html_string += "<td class='hori'><div class='cell' id='10'>"+insertImage(g[1][0])+"</div></td>";
-	html_string += "<td class='vert hori'><div class='cell' id='11'>"+insertImage(g[1][1])+"</div></td>";
-	html_string += "<td class='hori'><div class='cell' id='12'>"+insertImage(g[1][2])+"</div></td>";
-	html_string += "</tr><tr>";
-	html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
-	html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
-	html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
-	html_string += "</tr></table>";
+var html_string = "";
+html_string += "<table><tr>";
+html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
+html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
+html_string += "<td><div class='cell' id='22'>"+insertImage(g[2][2])+"</div></td>";
+html_string += "</tr><tr>";
+html_string += "<td class='hori'><div class='cell' id='10'>"+insertImage(g[1][0])+"</div></td>";
+html_string += "<td class='vert hori'><div class='cell' id='11'>"+insertImage(g[1][1])+"</div></td>";
+html_string += "<td class='hori'><div class='cell' id='12'>"+insertImage(g[1][2])+"</div></td>";
+html_string += "</tr><tr>";
+html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
+html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
+html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
+html_string += "</tr></table>";
 
-	return html_string;	
+return html_string;	
 }
 
 
