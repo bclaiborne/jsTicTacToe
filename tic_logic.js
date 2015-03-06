@@ -118,7 +118,7 @@ Player.prototype.Update = function(url, parse){
 	*/ 
 	var game_move = current_g = 0;
 	current_g = game_manager.loadGame(url);
-	
+console.log(url +'------'+ parse);	
 	//Parse the posted data from a buffer to an array of x,y coordinates.
 	// e.g. 'X=00' => [0,0]
 	game_move = parse.toString('utf8').split("=");
@@ -148,7 +148,6 @@ MetaBetaPetaverse.prototype.createGame = function(url, data){
 	// Returns a JSON object with an element yourGame and value is the url passed in. */
 	exists = false;
 	that = this;
-	
 	// Uglyness to strip the game name from the passed data string if the url is blank.
 	if (url == "") {
 		url = data.toString().split('&');
@@ -168,7 +167,6 @@ MetaBetaPetaverse.prototype.createGame = function(url, data){
 		that.games.push(game);
 		that.games.sort();
 	} else {
-		console.log("Game Loaded: " + url);
 		game = that.loadGame(url);
 	}
 	// Return the new or loaded Game object
@@ -260,13 +258,13 @@ instance.addRoute({
 instance.addRoute({
 	method:'POST', 
 	url_path:'/game_update/', 
-	handler: function(url, params){return game_manager.Update(url, params);}
+	handler: function(url, params){return client.Update(url, params);}
 });
 //Game Create Route.
 instance.addRoute({
 	method:'PUT', 
 	url_path:'/create/', 
-	handler: function(url, params){return game_manager.createGame(url, data);}
+	handler: function(url, params){return game_manager.createGame(url, params);}
 });
 //Game Load Route.
 instance.addRoute({
@@ -288,7 +286,7 @@ instance.addRoute({
 });
 //JSON Game View.
 instance.addView({
-	accept: "application/json; charset=utf-8",
+	accept: "application/json",
 	handler: function(response_object){return JSON.stringify(response_object, null, 2);}
 });
 //HTML Game View.

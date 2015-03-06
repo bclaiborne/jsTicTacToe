@@ -42,7 +42,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: 'http://127.0.0.1:1337/create/' + url,
 			headers: {
-			     "accept" : "application/json; charset=utf-8",         
+			    "accept" : "application/json",         
 				"Content-Type": "application/json; charset=utf-8"   
 			},
 			type: 'PUT',
@@ -58,7 +58,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: 'http://127.0.0.1:1337/load/' + url,
 			headers: {
-			     "accept" : "application/json; charset=utf-8",         
+			    "accept" : "application/json",         
 				"Content-Type": "application/json; charset=utf-8"   
 			},
 			type: 'POST',
@@ -78,7 +78,7 @@ $(document).ready(function(){
 			$.ajax({
 				url: 'http://127.0.0.1:1337/update/' + url,
 				headers: {
-					 "accept" : "application/json; charset=utf-8",         
+					"accept" : "application/json",         
 					"Content-Type": "application/json; charset=utf-8"   
 				},
 				type: 'POST',
