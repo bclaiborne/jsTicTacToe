@@ -70,15 +70,17 @@ Server.prototype.selectRoute = function(request, passed_data){
 Server.prototype.addView = function(view_obj){
 	//View is a key value pair 
 	this.views.push(view_obj);
+	console.log(this.views);
 }
 Server.prototype.selectView = function(request, passed_data){
 	// Iterates the views to find a format for the request.
+	// Defaults to HTML.
 	that = this;
 	for (i=0; i <= that.views.length; i++) {
 		key = that.views[i];
 			//Compares request information to the routes submitted and triggers the handler.
 
-		if (key.accepts == request.accept){
+		if (key.accepts == request.accepts){
 			game_response = key.handler(game_response);
 			return game_response;
 		}
