@@ -45,7 +45,7 @@ Server.prototype.start = function(){
 	}).listen(1337, '127.0.0.1'); 
 }
 Server.prototype.setResponseType = function(request){
-	if(request.headers["accept"] == "application/json; charset=utf-8"){
+	if(request.headers["accept"] == "application/json"){
 		string = "application/json";
 	} else {
 		string = "text/html";

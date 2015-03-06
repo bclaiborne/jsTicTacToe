@@ -42,8 +42,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: 'http://127.0.0.1:1337/create/' + url,
 			headers: {
-			    "accept" : "application/json",         
-				"Content-Type": "application/json; charset=utf-8"   
+			    "accept" : "application/json" 
 			},
 			type: 'PUT',
 			success: function(response){
@@ -58,8 +57,7 @@ $(document).ready(function(){
 		$.ajax({
 			url: 'http://127.0.0.1:1337/load/' + url,
 			headers: {
-			    "accept" : "application/json",         
-				"Content-Type": "application/json; charset=utf-8"   
+			    "accept" : "application/json"  
 			},
 			type: 'POST',
 			success: function(response){
@@ -78,12 +76,12 @@ $(document).ready(function(){
 			$.ajax({
 				url: 'http://127.0.0.1:1337/update/' + url,
 				headers: {
-					"accept" : "application/json",         
-					"Content-Type": "application/json; charset=utf-8"   
+					"accept" : "application/json"   
 				},
 				type: 'POST',
 				data: 'X=' + event.target.id,
 				success: function(response){
+					console.log(response);
 					console.log("Update Game Object: " + response.boardname);
 					processGame(response);
 				}
