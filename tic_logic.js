@@ -142,12 +142,19 @@ Player.prototype.Update = function(url, parse){
 MetaBetaPetaverse = function(url){
 	this.games = [];
 }
-MetaBetaPetaverse.prototype.createGame = function(url){
+MetaBetaPetaverse.prototype.createGame = function(url, data){
 	/* createGame(String)
 	// Create a new game object with a name and a space array. Saves it in the 'games' array.
 	// Returns a JSON object with an element yourGame and value is the url passed in. */
 	exists = false;
 	that = this;
+	
+	// Uglyness to strip the game name from the passed data string if the url is blank.
+	if (url == "") {
+		url = data.toString().split('&');
+		url = (url[0].split('='))[1];
+	}
+	
 	// Check game existence.
 	for (index = 0; index < that.games.length; index++){
 		if (that.games[index].boardname == url) { 
@@ -174,7 +181,6 @@ MetaBetaPetaverse.prototype.loadGame = function(url){
 		if (that.games[index].boardname == url) { 
 			game = that.games[index];
 			console.log(url + " game loaded.");
-			console.log(game);
 			return game;
 		}
 	}
@@ -215,7 +221,12 @@ MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
 
 	g=json_obj.brd;
 
-	var html_string = "";
+	var html_string = "<html><body><head><style>td {margin: 0px;padding:0px;}";
+html_string += "td > div {height:155px; width:155px;}";
+html_string += ".vert {border-left: 2px solid black;border-right: 2px solid black;}";
+html_string += ".hori {border-top: 2px solid black;border-bottom: 2px solid black;}";
+html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
+
 	html_string += "<table><tr>";
 	html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
 	html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
@@ -228,9 +239,9 @@ MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
 	html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
 	html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
 	html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
-	html_string += "</tr></table>";
+	html_string += "</tr></table></body></html>";
 
-	return html_string;	
+	return html_string;
 }
 
 
@@ -243,19 +254,19 @@ var game_manager = new MetaBetaPetaverse();
 instance.addRoute({
 	method:'POST', 
 	url_path:'/submit_game/', 
-	handler: function(url, params){return game_manager.createGame(url);}
+	handler: function(url, params){return game_manager.createGame(url, params);}
 });
 // HTML Game Update Route.
 instance.addRoute({
 	method:'POST', 
 	url_path:'/game_update/', 
-	handler: function(url, params){return game_manager.Update(url, data);}
+	handler: function(url, params){return game_manager.Update(url, params);}
 });
 //Game Create Route.
 instance.addRoute({
 	method:'PUT', 
 	url_path:'/create/', 
-	handler: function(url, params){return game_manager.createGame(url);}
+	handler: function(url, params){return game_manager.createGame(url, data);}
 });
 //Game Load Route.
 instance.addRoute({
@@ -278,7 +289,7 @@ instance.addRoute({
 //JSON Game View.
 instance.addView({
 	accept: "application/json; charset=utf-8",
-	handler: function(response_object){return response_object;}
+	handler: function(response_object){return JSON.stringify(response_object, null, 2);}
 });
 //HTML Game View.
 instance.addView({

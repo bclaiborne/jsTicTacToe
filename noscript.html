@@ -2,7 +2,7 @@
 <link rel='stylesheet' type='text/css' href='tic.css'/>
 
 <form action="http://127.0.0.1:1337/submit_game/" method='POST'>
-	<input id='textbox' type='text' name='G_Name'>
+	<input id='textbox' type='text' name='g_name'>
 	<input type='radio' name='game' value='create' checked> Create/Load Game
 	<input type='radio' name='game' value='delete' > Delete Game <br />
 	<input type="submit" value='Submit' />
@@ -26,5 +26,6 @@
 		<td><div><input type='radio' name='move' value='02'></div></td>
 	</tr>
 </table>
+<input type="hidden" name='game' value='' />
 <input type='submit' value='OMG U R POWND NAO!!!' />
 </form>

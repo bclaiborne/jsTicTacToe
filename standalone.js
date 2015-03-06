@@ -36,15 +36,16 @@ Server.prototype.start = function(){
 					request.connection.destroy();
 			});
 			request.on('end', function () {
+				console.log(request);
 				var response_data = srv.selectRoute(request, body);
 				response_data = srv.selectView(request, response_data);
-				response.end(JSON.stringify(response_data, null, 2) + "\n");
+				
+				response.end(response_data + "\n");
 			});
 		}
 	}).listen(1337, '127.0.0.1'); 
 }
 Server.prototype.setResponseType = function(request){
-//	console.log("++++++++++++++++" + request.headers);
 	if(request.headers["accept"] == "application/json; charset=utf-8"){
 		string = "application/json";
 	} else {
@@ -70,10 +71,10 @@ Server.prototype.selectRoute = function(request, passed_data){
 	for (i=0; i <= that.routes.length; i++) {
 		key = that.routes[i];
 			//Compares request information to the routes submitted and triggers the handler.
-
 		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
 			game_url = request.url.split(key.url_path);
 			game_response = key.handler(game_url[1], passed_data);
+			
 			return game_response;
 		}
 	}
