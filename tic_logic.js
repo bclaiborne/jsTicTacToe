@@ -282,7 +282,7 @@ instance.addView({
 });
 //HTML Game View.
 instance.addView({
-	accept: "text/html; charset=utf-8",
+	accept: "text/html",
 	handler: function(response_object){return game_manager.buildHTML(response_object);}
 });
 

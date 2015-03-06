@@ -1,14 +1,14 @@
 <meta charset='UTF-8'> 
 <link rel='stylesheet' type='text/css' href='tic.css'/>
 
-<form action="http://127.0.0.1:1337/submit_game" method='POST'>
+<form action="http://127.0.0.1:1337/submit_game/" method='POST'>
 	<input id='textbox' type='text' name='G_Name'>
 	<input type='radio' name='game' value='create' checked> Create/Load Game
 	<input type='radio' name='game' value='delete' > Delete Game <br />
 	<input type="submit" value='Submit' />
 </form>
 <div id='svr_msg'></div>
-<form action="http://127.0.0.1:1337/game_update" method="POST">
+<form action="http://127.0.0.1:1337/game_update/" method="POST">
 <table>
 	<tr>
 		<td><div><input type='radio' name='move' value='20'></div></td>

@@ -4,6 +4,7 @@ var http = require('http');
 Server = function(){
 	this.routes = [];
 	this.views = [];
+	this.content_type = "";
 }	
 Server.prototype.start = function(){
 	srv = this;
@@ -21,7 +22,11 @@ Server.prototype.start = function(){
 			response.writeHead(200, headers);
 			response.end();
 		} else {
-			srv.setResponseType(request);
+			srv.content_type = srv.setResponseType(request);
+			response.writeHead(200, {
+					"Content-Type": srv.content_type,
+					"Access-Control-Allow-Origin": "*"
+			});
 			
 			body = '';
 			request.on('data', function (data) {
@@ -32,22 +37,20 @@ Server.prototype.start = function(){
 			});
 			request.on('end', function () {
 				var response_data = srv.selectRoute(request, body);
-				response_data = srv.selectView(response_data, request);
+				response_data = srv.selectView(request, response_data);
 				response.end(JSON.stringify(response_data, null, 2) + "\n");
 			});
 		}
 	}).listen(1337, '127.0.0.1'); 
 }
-Server.prototype.setResponseType(request){
-	if(request.headers["accepts"] == "application/json; charset=utf-8"){
+Server.prototype.setResponseType = function(request){
+//	console.log("++++++++++++++++" + request.headers);
+	if(request.headers["accept"] == "application/json; charset=utf-8"){
 		string = "application/json";
 	} else {
 		string = "text/html";
 	}
-	response.writeHead(200, {
-			"Content-Type": string,
-			"Access-Control-Allow-Origin": "*"
-	});
+	return string;
 }
 Server.prototype.addRoute = function(route_obj) {
 	//Route is a string containing a method and url pair with a function to trigger.
@@ -78,7 +81,6 @@ Server.prototype.selectRoute = function(request, passed_data){
 Server.prototype.addView = function(view_obj){
 	//View is a key value pair 
 	this.views.push(view_obj);
-	console.log(this.views);
 }
 Server.prototype.selectView = function(request, passed_data){
 	// Iterates the views to find a format for the request.
@@ -86,11 +88,13 @@ Server.prototype.selectView = function(request, passed_data){
 	that = this;
 	for (i=0; i <= that.views.length; i++) {
 		key = that.views[i];
-			//Compares request information to the routes submitted and triggers the handler.
-
-		if (key.accepts == request.accepts){
-			game_response = key.handler(game_response);
-			return game_response;
+		req_accepted_types = request.headers.accept.split(",");
+			//Iterate and Compare request information to the routes submitted and triggers the handler.
+		for (a=0; a<= req_accepted_types.length; a++) {
+			if (key.accept == req_accepted_types[a]){
+				game_response = key.handler(game_response);
+				return game_response;
+			}
 		}
 	}
 	
