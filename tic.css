@@ -3,7 +3,7 @@ margin: 0px;
 padding:0px;
 }
 
-.cell {
+td > div {
 height:155px;
 width:155px;
 }

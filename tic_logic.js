@@ -239,6 +239,18 @@ var client = new Player("X");
 var skynet = new Ai("O");
 
 var game_manager = new MetaBetaPetaverse();
+// HTML Create/Load or Delete route.
+instance.addRoute({
+	method:'POST', 
+	url_path:'/submit_game/', 
+	handler: function(url, params){return game_manager.createGame(url);}
+});
+// HTML Game Update Route.
+instance.addRoute({
+	method:'POST', 
+	url_path:'/game_update/', 
+	handler: function(url, params){return game_manager.Update(url, data);}
+});
 //Game Create Route.
 instance.addRoute({
 	method:'PUT', 

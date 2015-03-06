@@ -21,10 +21,7 @@ Server.prototype.start = function(){
 			response.writeHead(200, headers);
 			response.end();
 		} else {
-			response.writeHead(200, {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*"
-				});
+			srv.setResponseType(request);
 			
 			body = '';
 			request.on('data', function (data) {
@@ -40,6 +37,17 @@ Server.prototype.start = function(){
 			});
 		}
 	}).listen(1337, '127.0.0.1'); 
+}
+Server.prototype.setResponseType(request){
+	if(request.headers["accepts"] == "application/json; charset=utf-8"){
+		string = "application/json";
+	} else {
+		string = "text/html";
+	}
+	response.writeHead(200, {
+			"Content-Type": string,
+			"Access-Control-Allow-Origin": "*"
+	});
 }
 Server.prototype.addRoute = function(route_obj) {
 	//Route is a string containing a method and url pair with a function to trigger.
