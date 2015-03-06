@@ -41,6 +41,9 @@ $(document).ready(function(){
 		var url = $("#textbox").val();
 		$.ajax({
 			url: 'http://127.0.0.1:1337/create/' + url,
+			headers: {
+				"accept": "application/json"
+			},
 			type: 'PUT',
 			success: function(response){
 				console.log("New Game Object: " + response.boardname);
@@ -53,6 +56,9 @@ $(document).ready(function(){
 		var url = $("#textbox").val();
 		$.ajax({
 			url: 'http://127.0.0.1:1337/load/' + url,
+			headers: {
+				"accept": "application/json"
+			},
 			type: 'POST',
 			success: function(response){
 				console.log("Load Game Object: " + response.boardname);
@@ -69,6 +75,9 @@ $(document).ready(function(){
 		if (event.target.id != ""){
 			$.ajax({
 				url: 'http://127.0.0.1:1337/update/' + url,
+				headers: {
+					"accept": "application/json"
+				},
 				type: 'POST',
 				data: 'X=' + event.target.id,
 				success: function(response){
