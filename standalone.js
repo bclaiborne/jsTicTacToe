@@ -22,11 +22,6 @@ Server.prototype.start = function(){
 			response.writeHead(200, headers);
 			response.end();
 		} else {
-			srv.content_type = srv.setResponseType(request);
-			response.writeHead(200, {
-					"Content-Type": srv.content_type,
-					"Access-Control-Allow-Origin": "*"
-			});
 			
 			body = '';
 			request.on('data', function (data) {
@@ -38,19 +33,15 @@ Server.prototype.start = function(){
 			request.on('end', function () {
 				var response_data = srv.selectRoute(request, body);
 				response_data = srv.selectView(request, response_data);
-				
+
+				response.writeHead(200, {
+						"Content-Type": srv.content_type,
+						"Access-Control-Allow-Origin": "*"
+				});
 				response.end(response_data + "\n");
 			});
 		}
 	}).listen(1337, '127.0.0.1'); 
-}
-Server.prototype.setResponseType = function(request){
-	if(request.headers["accept"] == "application/json"){
-		string = "application/json";
-	} else {
-		string = "text/html";
-	}
-	return string;
 }
 Server.prototype.addRoute = function(route_obj) {
 	//Route is a string containing a method and url pair with a function to trigger.
@@ -69,6 +60,10 @@ Server.prototype.selectRoute = function(request, passed_data){
 	that = this;
 	for (i=0; i <= that.routes.length; i++) {
 		key = that.routes[i];
+		console.log(key.method + "<- key | req->" + request.method);
+/*		if (req_accepted_types.match("text/html")) {
+			req_accepted_types = req_accepted_types.match("text/html")[0];
+		}*/
 			//Compares request information to the routes submitted and triggers the handler.
 		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
 			game_url = request.url.split(key.url_path);
@@ -89,9 +84,14 @@ Server.prototype.selectView = function(request, passed_data){
 	for (i=0; i <= that.views.length; i++) {
 		key = that.views[i];
 		req_accepted_types = request.headers["accept"];
+		if (req_accepted_types.match("text/html")) {
+			req_accepted_types = req_accepted_types.match("text/html")[0];
+		}
+		console.log("req->" + req_accepted_types);
 			//Iterate and Compare request information to the routes submitted and triggers the handler.
 		for (a=0; a<= req_accepted_types.length; a++) {
 			if (key.accept == req_accepted_types){
+				srv.content_type = key.accept;
 				game_response = key.handler(game_response);
 				return game_response;
 			}

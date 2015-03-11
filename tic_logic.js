@@ -210,10 +210,10 @@ MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
 	function insertImage(board_space){
 		img = "";
 		if (board_space=="X") {
-			img = "<img src='./redx.png' />";
+			img = "X";
 		} else if (board_space=="O") {
-			img = "<img src='./blueo.png' />";
-		}
+			img = "O";
+		} 
 		return img;	
 	}
 
@@ -237,7 +237,11 @@ html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
 	html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
 	html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
 	html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
-	html_string += "</tr></table></body></html>";
+	html_string += "</tr></table>";
+html_string += "<input type='text' name='move' /> Enter your move coordinates as an xy pair. e.g. To move in the top left you would type '02'<br />";	
+html_string += "<input type='hidden' name='game' value='"+json_obj.boardName+"' />";
+html_string += "<input type='submit' value='OMG U R POWND NAO!!!' />";
+html_string += "</body></html>";
 
 	return html_string;
 }
