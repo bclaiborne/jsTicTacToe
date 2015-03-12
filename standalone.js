@@ -60,7 +60,7 @@ Server.prototype.selectRoute = function(request, passed_data){
 	that = this;
 	for (i=0; i <= that.routes.length; i++) {
 		key = that.routes[i];
-		console.log(key.method + "<- key | req->" + request.method);
+		console.log(key.url_path + "<- key | req->" + request.url);
 /*		if (req_accepted_types.match("text/html")) {
 			req_accepted_types = req_accepted_types.match("text/html")[0];
 		}*/

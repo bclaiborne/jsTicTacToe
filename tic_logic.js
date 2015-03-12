@@ -116,9 +116,12 @@ Player.prototype.Update = function(url, parse){
 	 *	{string} url The name of the game being played.
 	 *	{array} parse The x, y coordinate pair for the move.
 	*/ 
-	var game_move = current_g = 0;
-	current_g = game_manager.loadGame(url);
 console.log(url +'------'+ parse);	
+	var game_move = current_g = 0;
+	if (url == '/submit_game/') {
+		url = parse.name;
+	}
+	current_g = game_manager.loadGame(url);
 	//Parse the posted data from a buffer to an array of x,y coordinates.
 	// e.g. 'X=00' => [0,0]
 	game_move = parse.toString('utf8').split("=");
@@ -220,11 +223,10 @@ MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
 	g=json_obj.brd;
 
 	var html_string = "<html><body><head><style>td {margin: 0px;padding:0px;}";
-html_string += "td > div {height:155px; width:155px;}";
-html_string += ".vert {border-left: 2px solid black;border-right: 2px solid black;}";
-html_string += ".hori {border-top: 2px solid black;border-bottom: 2px solid black;}";
-html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
-
+	html_string += "td > div {height:155px; width:155px;}";
+	html_string += ".vert {border-left: 2px solid black;border-right: 2px solid black;}";
+	html_string += ".hori {border-top: 2px solid black;border-bottom: 2px solid black;}";
+	html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
 	html_string += "<table><tr>";
 	html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
 	html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
@@ -238,10 +240,11 @@ html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
 	html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
 	html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
 	html_string += "</tr></table>";
-html_string += "<input type='text' name='move' /> Enter your move coordinates as an xy pair. e.g. To move in the top left you would type '02'<br />";	
-html_string += "<input type='hidden' name='game' value='"+json_obj.boardName+"' />";
-html_string += "<input type='submit' value='OMG U R POWND NAO!!!' />";
-html_string += "</body></html>";
+	html_string	+= "<form action='http://127.0.0.1:1337/game_update/' method='POST'>";
+	html_string += "<input type='text' name='move' /> Enter your move coordinates as an xy pair. e.g. To move in the top left you would type '02'<br />";	
+	html_string += "<input type='hidden' name='game' value='"+json_obj.boardname+"' />";
+	html_string += "<input type='submit' value='OMG U R POWND NAO!!!' /></form>";
+	html_string += "</body></html>";
 
 	return html_string;
 }
