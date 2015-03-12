@@ -2,40 +2,6 @@ var qs = require('querystring');
 var http = require('http');
 require('./standalone.js');
 
-function processGame(Obj){
-	// Takes the JSON response and parses it for piece locations.
-	// Updates the board.
-	var state = [];
-	
-	if(Obj){ 
-		state = Obj.brd;
-	} else { 
-		console.log("No object returned");
-	}
-	// Parses the game array and updates classes of corresponding divs.
-	for (r=0; r<=2; r++){
-		for (c=0; c<=2; c++){
-			if (state[r][c] == "O"){
-				$("#"+r+c).addClass("O");
-				$("#"+r+c).html("<img src='./blueo.png' />");
-			} else if (state[r][c] == "X") {
-				$("#"+r+c).addClass("X");
-				$("#"+r+c).html("<img src='./redx.png' />");
-			} else {
-				$("#"+r+c).removeClass("X");
-				$("#"+r+c).removeClass("O");
-				$("#"+r+c).html(" ");
-			}
-		}
-	}
-	// Checks the game objects won attribute and turn count.
-	if (Obj.won == "X") {
-		alert("X wins!"); 
-	} else if (Obj.won == "O") {
-		alert("O wins!");
-	} else if (Obj.turns == 9) alert("Tie Game.");
-}
-
 Game = function(player1, player2, url){
 	this.boardname = url;
 	this.brd = [[" "," "," "],[" "," "," "],[" "," "," "]];
@@ -68,6 +34,9 @@ Game.prototype.spaceCheck = function(x,y){
 	 *	{number} y The y coordinate on the board.
 	 *	{boolean} Returns True if the space is empty. False if a mark exists.
 	*/
+	//Error catching
+	if (x > 2 || y > 2) return false;
+	
 	if (this.brd[x][y] == " ") return true;
 	else return false;
 }
@@ -81,6 +50,7 @@ Game.prototype.boardUpdate = function(x,y, symbol){
 	if (this.spaceCheck(x,y)) {
 		this.brd[x][y] = symbol;
 		this.turns++;
+		if (this.turns == 9) this.won = "T"; 
 		return true;
 	} else {
 		return false;
@@ -116,15 +86,20 @@ Player.prototype.Update = function(url, parse){
 	 *	{string} url The name of the game being played.
 	 *	{array} parse The x, y coordinate pair for the move.
 	*/ 
-console.log(url +'------'+ parse);	
 	var game_move = current_g = 0;
-	if (url == '/submit_game/') {
-		url = parse.name;
+	parse = parse.toString('utf8');
+
+	//If its an HTML submission, parse data needs to be broken down into components.
+	if (url == '') {
+		params = parse.split('&');
+		url = params[1].split('=')[1];
+		parse = params[0];
+		//parse = parse.X;
 	}
 	current_g = game_manager.loadGame(url);
 	//Parse the posted data from a buffer to an array of x,y coordinates.
 	// e.g. 'X=00' => [0,0]
-	game_move = parse.toString('utf8').split("=");
+	game_move = parse.split("=");
 	target = game_move[1].split("");
 
 	if (current_g.spaceCheck(target[0],target[1]) && current_g.won == " "){
@@ -151,6 +126,7 @@ MetaBetaPetaverse.prototype.createGame = function(url, data){
 	// Returns a JSON object with an element yourGame and value is the url passed in. */
 	exists = false;
 	that = this;
+
 	// Uglyness to strip the game name from the passed data string if the url is blank.
 	if (url == "") {
 		url = data.toString().split('&');
@@ -181,7 +157,7 @@ MetaBetaPetaverse.prototype.loadGame = function(url){
 	for (index = 0; index < that.games.length; index++){
 		if (that.games[index].boardname == url) { 
 			game = that.games[index];
-			console.log(url + " game loaded.");
+			console.log("Game loaded from: " +url);
 			return game;
 		}
 	}
@@ -210,40 +186,45 @@ MetaBetaPetaverse.prototype.buildHTML = function(json_obj){
 		turns = 0;
 		won = " "
 	}*/
-	function insertImage(board_space){
-		img = "";
-		if (board_space=="X") {
-			img = "X";
-		} else if (board_space=="O") {
-			img = "O";
-		} 
-		return img;	
-	}
-
 	g=json_obj.brd;
-
+	won = json_obj.won;
+	// CSS Styling for HTML feedback.
 	var html_string = "<html><body><head><style>td {margin: 0px;padding:0px;}";
 	html_string += "td > div {height:155px; width:155px;}";
 	html_string += ".vert {border-left: 2px solid black;border-right: 2px solid black;}";
 	html_string += ".hori {border-top: 2px solid black;border-bottom: 2px solid black;}";
 	html_string += ".cell:hover{background: #f1f1f1;}</style></head>";
-	html_string += "<table><tr>";
-	html_string += "<td><div class='cell' id='20'>"+insertImage(g[2][0])+"</div></td>";
-	html_string += "<td class='vert'><div class='cell' id='21'>"+insertImage(g[2][1])+"</div></td>";
-	html_string += "<td><div class='cell' id='22'>"+insertImage(g[2][2])+"</div></td>";
-	html_string += "</tr><tr>";
-	html_string += "<td class='hori'><div class='cell' id='10'>"+insertImage(g[1][0])+"</div></td>";
-	html_string += "<td class='vert hori'><div class='cell' id='11'>"+insertImage(g[1][1])+"</div></td>";
-	html_string += "<td class='hori'><div class='cell' id='12'>"+insertImage(g[1][2])+"</div></td>";
-	html_string += "</tr><tr>";
-	html_string += "<td><div class='cell' id='00'>"+insertImage(g[0][0])+"</div></td>";
-	html_string += "<td class='vert'><div class='cell' id='01'>"+insertImage(g[0][1])+"</div></td>";
-	html_string += "<td><div class='cell' id='02'>"+insertImage(g[0][2])+"</div></td>";
-	html_string += "</tr></table>";
-	html_string	+= "<form action='http://127.0.0.1:1337/game_update/' method='POST'>";
-	html_string += "<input type='text' name='move' /> Enter your move coordinates as an xy pair. e.g. To move in the top left you would type '02'<br />";	
-	html_string += "<input type='hidden' name='game' value='"+json_obj.boardname+"' />";
-	html_string += "<input type='submit' value='OMG U R POWND NAO!!!' /></form>";
+
+	// Build the game grid for HTML return.
+	if (won == ' '){
+		html_string += "<table><tr>";
+		html_string += "<td><div class='cell' id='20'>"+g[2][0]+"</div></td>";
+		html_string += "<td class='vert'><div class='cell' id='21'>"+g[2][1]+"</div></td>";
+		html_string += "<td><div class='cell' id='22'>"+g[2][2]+"</div></td>";
+		html_string += "</tr><tr>";
+		html_string += "<td class='hori'><div class='cell' id='10'>"+g[1][0]+"</div></td>";
+		html_string += "<td class='vert hori'><div class='cell' id='11'>"+g[1][1]+"</div></td>";
+		html_string += "<td class='hori'><div class='cell' id='12'>"+g[1][2]+"</div></td>";
+		html_string += "</tr><tr>";
+		html_string += "<td><div class='cell' id='00'>"+g[0][0]+"</div></td>";
+		html_string += "<td class='vert'><div class='cell' id='01'>"+g[0][1]+"</div></td>";
+		html_string += "<td><div class='cell' id='02'>"+g[0][2]+"</div></td>";
+		html_string += "</tr></table>";
+		html_string	+= "<form action='http://127.0.0.1:1337/game_update/' method='POST'>";
+		html_string += "<input type='text' name='X' /> Enter your move coordinates as an xy pair. e.g. To move in the top left you would type '02'<br />";	
+		html_string += "<input type='hidden' name='game' value='"+json_obj.boardname+"' />";
+		html_string += "<input type='submit' value='OMG U R POWND NAO!!!' /></form>";
+	} else {
+		if (won == 'X')	html_string += "<h2>Player Wins!</h2>";
+		if (won == 'O')	html_string += "<h2>Computers are smarter than you!</h2>";
+		if (won == 'T')	html_string += "<h2>You have learned the compy's ai well!</h2>";
+		
+		html_string += "<form method='POST' action='http://127.0.0.1:1337/submit_game/'>";
+		html_string += "<input id='textbox' type='text' name='g_name'>";
+		html_string += "<input type='radio' checked='' value='create' name='game'>";
+		html_string += "Create/Load Game<br />";
+		html_string += "<input type='submit' value='Submit'></form>";
+	}
 	html_string += "</body></html>";
 
 	return html_string;

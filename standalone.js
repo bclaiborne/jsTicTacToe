@@ -58,13 +58,10 @@ Server.prototype.matchPrefix = function(request, route){
 Server.prototype.selectRoute = function(request, passed_data){
 	// Iterates the routes to find a destination for the request.
 	that = this;
-	for (i=0; i <= that.routes.length; i++) {
+	for (i=0; i < that.routes.length; i++) {
 		key = that.routes[i];
-		console.log(key.url_path + "<- key | req->" + request.url);
-/*		if (req_accepted_types.match("text/html")) {
-			req_accepted_types = req_accepted_types.match("text/html")[0];
-		}*/
-			//Compares request information to the routes submitted and triggers the handler.
+
+		//Compares request information to the routes submitted and triggers the handler.
 		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
 			game_url = request.url.split(key.url_path);
 			game_response = key.handler(game_url[1], passed_data);
@@ -87,8 +84,7 @@ Server.prototype.selectView = function(request, passed_data){
 		if (req_accepted_types.match("text/html")) {
 			req_accepted_types = req_accepted_types.match("text/html")[0];
 		}
-		console.log("req->" + req_accepted_types);
-			//Iterate and Compare request information to the routes submitted and triggers the handler.
+		//Iterate and Compare request information to the routes submitted and triggers the handler.
 		for (a=0; a<= req_accepted_types.length; a++) {
 			if (key.accept == req_accepted_types){
 				srv.content_type = key.accept;

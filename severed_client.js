@@ -81,7 +81,6 @@ $(document).ready(function(){
 				type: 'POST',
 				data: 'X=' + event.target.id,
 				success: function(response){
-					console.log(response);
 					console.log("Update Game Object: " + response.boardname);
 					processGame(response);
 				}
