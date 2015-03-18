@@ -1,24 +1,23 @@
 var debug=true;
 var xhr = new XMLHttpRequest({mozSystem: true});
+var toe_Socket = new WebSocket("ws://127.0.0.1:1337");
 
-//-----------Template from - http://ahoj.io/nodejs-and-websocket-simple-chat-tutorial
-$(function () {
+function connect() {
     //If user is running mozilla then use it's built-in WebSocket
     window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-	var toe_Socket = new WebSocket("ws://127.0.0.1:1337");
 
-    connection.onopen = function () {
+    toe_Socket.onopen = function () {
         // connection is opened and ready to use
 		console.log("Websocket Connected.");
     };
 
-    connection.onerror = function (error) {
+    toe_Socket.onerror = function (error) {
         // an error occurred when sending/receiving data
 		console.log(error);
     };
 
-    connection.onmessage = function (message) {
+    toe_Socket.onmessage = function (message) {
         // try to decode json (I assume that each message from server is json)
         try {
             var json = JSON.parse(message.data);
@@ -28,10 +27,12 @@ $(function () {
         }
         // handle incoming message
 		//Lucky my client side events all use processGame! I don't have to parse the object!
-		processGame(response);
+console.log(json.boardname);
+		if ($("#textbox").val() == json.boardname){
+			processGame(json);
+		}
     };
-});
-// ------------------- Copied template 
+}
 
 function processGame(Obj){
 	// Takes the JSON response and parses it for piece locations.
@@ -69,28 +70,30 @@ function processGame(Obj){
 
 
 $(document).ready(function(){
+	//Connect the Websocket to the server.
+	connect();	
 	// New Game button click to create a game on the server.
+	
 	$("#new_game").click(function(event){
 		var name = $("#textbox").val();
 		url = "/create/" + name;
 		json_obj = {
 			game: url,
 			headers: {"accept": "application/json"},
-			type: 'PUT'
+			method: 'PUT'
 		}
-		toe_Socket.send(json_obj);
+		toe_Socket.send(JSON.stringify(json_obj));
 	});
-	
+
 	// Load Game button click to return game state.
 	$("#load").click(function(event){
 		var name = $("#textbox").val();
 		json_obj = {
-			url: '/load/' + name,
+			game: '/load/' + name,
 			headers: {"accept": "application/json"},
-			type: 'POST'
+			method: 'POST'
 		}
-		toe_Socket.send(json_obj;)
-		
+		toe_Socket.send(JSON.stringify(json_obj));
 	});
 	// Event triggered by clicking on an empty board square.
 	$(".cell").click(function(event) {
@@ -100,12 +103,12 @@ $(document).ready(function(){
 		//Verify we selected an empty div.
 		if (event.target.id != ""){
 			json_obj = {
-				url: '/update/' + name,
+				game: '/update/' + name,
 				headers: {"accept": "application/json"},
-				type: 'POST',
+				method: 'POST',
 				data: 'X=' + event.target.id,
 			}
-			toe_Socket.send(json_obj);
+			toe_Socket.send(JSON.stringify(json_obj));
 		}
 	});
 });

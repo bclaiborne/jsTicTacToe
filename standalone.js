@@ -3,19 +3,15 @@ var http = require('http');
 
 Server = function(){
 	this.routes = [];
+	this.clients = [];
 }	
 Server.prototype.start = function(){
 	srv = this;
 	server = http.createServer(function (request, response) {
-// -----------------------------------------------------------------------
-// Cropped HTTP server stuff.
-			var response_data = srv.selectRoute(request, body);
-				console.log("Response Data: " + response_data);
-				response.end(JSON.stringify(response_data, null, 2) + "\n");
-			});
-		}
-// -----------------------------------------------------------------------
-	}).listen(1337, '127.0.0.1');
+		// All the pretty HTTP server code is gone!
+	});
+	
+	server.listen(1337, '127.0.0.1');
 	//Websocket content
 	var WebSocketServer = require('websocket').server;
 	ToeServer = new WebSocketServer({
@@ -23,11 +19,20 @@ Server.prototype.start = function(){
 	});
 	
 	ToeServer.on('request', function(request){
+		//Accept the request and store the connection in array.
 		var link = request.accept(null, request.origin);
-	
+		srv.clients.push(link);
+		
 		link.on('message', function(message){
-			
-			
+			//Convert response to JSON object that tic-tac-toe app understands.
+			message = JSON.parse(message.utf8Data);
+			//PUll message data to JSON for app.
+			data = message.data ? message.data : "";
+
+			response_data = srv.selectRoute(message, data);
+			for (var i=0; i < srv.clients.length; i++) {
+				srv.clients[i].sendUTF(JSON.stringify(response_data, null, 2));
+			} 
 		});
 		
 		link.on('close', function(conn){
@@ -56,8 +61,8 @@ Server.prototype.selectRoute = function(request, passed_data){
 		key = that.routes[i];
 			//Compares request information to the routes submitted and triggers the handler.
 
-		if (key.method == request.method && that.matchPrefix(request.url, key.url_path)){
-			game_url = request.url.split(key.url_path);
+		if (key.method == request.method && that.matchPrefix(request.game, key.url_path)){
+			game_url = request.game.split(key.url_path);
 			game_response = key.handler(game_url[1], passed_data);
 			return game_response;
 		}
