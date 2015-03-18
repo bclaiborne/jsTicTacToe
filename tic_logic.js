@@ -177,7 +177,5 @@ instance.addRoute({method:'POST', url_path:'/load/', handler: function(url, para
 instance.addRoute({method:'POST', url_path:'/update/', handler: function(url, data){return client.Update(url, data);}});
 //Game Delete Route.
 instance.addRoute({method:'DELETE', url_path:'/delete/', handler: function(url, params){return game_manager.removeGame(url);}});
-//Game Default Route.
-//instance.addRoute({method:'GET', url_path:'', handler: function(url){console.log("Default URI");}});
 
 instance.start();

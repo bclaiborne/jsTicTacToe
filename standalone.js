@@ -6,40 +6,36 @@ Server = function(){
 }	
 Server.prototype.start = function(){
 	srv = this;
-	http.createServer(function (request, response) {
-console.log(request.headers["accept"]);
-		if (request.method === 'OPTIONS') {
-			console.log('!OPTIONS');
-			var headers = {};
-			// IE8 does not allow domains to be specified, just the *
-			// headers["Access-Control-Allow-Origin"] = req.headers.origin;
-			headers["Access-Control-Allow-Origin"] = "*";
-			headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
-			headers["Access-Control-Allow-Credentials"] = false;
-			headers["Access-Control-Max-Age"] = '86400'; // 24 hours
-			headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, accept";
-			response.writeHead(200, headers);
-			response.end();
-		} else {
-			response.writeHead(200, {
-				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*"
-				});
-			
-			body = '';
-			request.on('data', function (data) {
-				body = data;
-				// Too much POST data, kill the connection!
-				if (body.length > 1e6)
-					request.connection.destroy();
-			});
-			request.on('end', function () {
-				var response_data = srv.selectRoute(request, body);
+	server = http.createServer(function (request, response) {
+// -----------------------------------------------------------------------
+// Cropped HTTP server stuff.
+			var response_data = srv.selectRoute(request, body);
 				console.log("Response Data: " + response_data);
 				response.end(JSON.stringify(response_data, null, 2) + "\n");
 			});
 		}
-	}).listen(1337, '127.0.0.1'); 
+// -----------------------------------------------------------------------
+	}).listen(1337, '127.0.0.1');
+	//Websocket content
+	var WebSocketServer = require('websocket').server;
+	ToeServer = new WebSocketServer({
+		httpServer: server
+	});
+	
+	ToeServer.on('request', function(request){
+		var link = request.accept(null, request.origin);
+	
+		link.on('message', function(message){
+			
+			
+		});
+		
+		link.on('close', function(conn){
+			
+		});
+	});
+	
+	
 }
 Server.prototype.addRoute = function(route_obj) {
 	//Route is a string containing a method and url pair with a function to trigger.
